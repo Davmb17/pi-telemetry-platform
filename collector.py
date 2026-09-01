@@ -5,7 +5,7 @@ import os
 
 
 # Helper method to append a telemetry record as JSON
-def write_json(data, filename="telemetry_data.json"):
+def write_json(data, filename="/data/telemetry_data.json"):
     with open(filename, "a") as f:
         json.dump(data, f)
         f.write("\n")  

@@ -1,0 +1,11 @@
+services:
+  telemetry-collector:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    hostname: pi-server
+    environment:
+      - COLLECTION_INTERVAL=5
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
