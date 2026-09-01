@@ -10,4 +10,4 @@ I would like to create a dashboard that visulizes important raspberry pi system 
  Raspberry pi -> Telemetry Collector -> stdout
 
 ## Current Status
-Initial project setup and architecture planning. 
+Finished script for collecting system snapshot. Working on docker currently
