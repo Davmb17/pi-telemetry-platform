@@ -2,13 +2,20 @@ import json
 from datetime import datetime, timezone
 import time
 import os
+import sys
 
 
-# Helper method to append a telemetry record as JSON
-def write_json(data, filename="/data/telemetry_data.json"):
-    with open(filename, "a") as f:
-        json.dump(data, f)
-        f.write("\n")  
+# Helper method to append a telemetry record as JSON and valid telemetry can be written
+def write_json(data, filename):
+    try:
+        with open(filename, "a") as f:
+            json.dump(data, f)
+            f.write("\n") 
+    except OSError as e:
+        sys.exit(
+            f"storage error: Cannot write telemetry to '{filename}'. "
+            f"System error: {e}"
+        ) 
 
 # Helper method to get hostname 
 def get_host_name():
@@ -97,9 +104,39 @@ def get_disk_usage_pct():
     used_blocks = total_blocks - free_blocks
     return (used_blocks / total_blocks) * 100
 
-def main():
+# Helper method to get and validate COLLECTION_INTERVAL 
+def get_collection_interval():
     raw_interval = os.getenv("COLLECTION_INTERVAL", "29")
-    collection_interval = int(raw_interval)
+
+    try:
+        collection_interval = int(raw_interval)
+    except ValueError:
+        sys.exit(
+            f"Configuration error: COLLECTION_INTERVAL must be a valid integer; "
+            f"received '{raw_interval}'"
+                 )
+
+    if collection_interval <= 0:
+        sys.exit(
+            f"Configuration error: COLLECTION_INTERVAL must be greater than 0; " 
+            f"received '{collection_interval}'"
+            )
+
+    return collection_interval
+
+# Helper method to get and validate OUTPUT_FILE
+def get_output_file():
+    output_file = os.getenv("OUTPUT_FILE", "/data/telemetry_data.json").strip()
+
+    if not output_file:
+        sys.exit("Configuration error: OUTPUT_FILE path cannot be empty")
+
+    return output_file
+
+def main():
+    collection_interval = get_collection_interval()
+    output_file = get_output_file()
+    
     try: 
          while True:
             
@@ -119,7 +156,7 @@ def main():
                 "disk_usage_percent": round(disk_usage, 2)
             }
         
-            write_json(system_snapshot) 
+            write_json(system_snapshot, output_file) 
         
         
             time.sleep(collection_interval)

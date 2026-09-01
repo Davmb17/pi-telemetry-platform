@@ -6,6 +6,7 @@ services:
     hostname: pi-server
     environment:
       - COLLECTION_INTERVAL=5
+      - OUTPUT_FILE=/data/telemetry_data.json
     volumes:
       - ./data:/data
     restart: unless-stopped
